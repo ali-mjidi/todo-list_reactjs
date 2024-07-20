@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import NewTaskForm from "./components/NewTaskForm/NewTaskForm";
 import TasksWrapper from "./components/TasksWrapper/TasksWrapper";
@@ -13,13 +13,12 @@ function App() {
         const data = await res.json();
 
         setTasks(data);
-
-        if (!lastTaskID) {
-            setLastTaskID(data[data.length - 1].id);
-        }
+        setLastTaskID(data.length ? data[data.length - 1].id : null);
     }
 
-    getTasks();
+    useEffect(() => {
+        getTasks();
+    }, []);
 
     return (
         <div className="container">
