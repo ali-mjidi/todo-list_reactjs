@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./style.css";
 
-function NewTaskForm({ lastTaskID, setLastTaskID }) {
+function NewTaskForm({ addNewTask, lastTaskID, setLastTaskID }) {
     const [newTask, setNewTask] = useState("");
 
     function addTask(e) {
@@ -9,19 +9,14 @@ function NewTaskForm({ lastTaskID, setLastTaskID }) {
         if (!newTask) {
             alert("Please enter something");
         } else {
-            const task = {
+            const newTaskData = {
                 id: String(+lastTaskID + 1),
                 title: newTask.trim(),
                 isDone: false,
             };
 
-            fetch("http://localhost:3004/tasks", {
-                method: "POST",
-                body: JSON.stringify(task),
-                headers: { "Content-type": "application/json" },
-            });
-
-            setLastTaskID(task.id);
+            addNewTask({ type: "add", payload: newTaskData });
+            setLastTaskID(newTaskData.id);
             setNewTask("");
         }
     }
