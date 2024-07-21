@@ -6,17 +6,16 @@ import "./App.css";
 
 function App() {
     const [tasks, setTasks] = useState([]);
-    const [state, dispatch] = useReducer(reducer, []);
-    const [lastTaskID, setLastTaskID] = useState(null);
+    const [lastTaskID, setLastTaskID] = useState(0);
+    const [_, dispatch] = useReducer(reducer, null);
 
-    function reducer(state, action) {
+    function reducer(_, action) {
         async function get() {
             const res = await fetch("http://localhost:3004/tasks");
             const data = await res.json();
 
             setTasks(data);
-            setLastTaskID(data.length ? data[data.length - 1].id : null);
-            console.log("getting...");
+            setLastTaskID(data.length ? data[data.length - 1].id : 0);
         }
 
         switch (action.type) {
@@ -29,11 +28,19 @@ function App() {
                     body: JSON.stringify(action.payload),
                     headers: { "Content-type": "application/json" },
                 }).then(get);
-                console.log("adding...");
-
                 break;
-            default:
-                return state;
+            case "update":
+                fetch(`http://localhost:3004/tasks/${action.payload.id}`, {
+                    method: "PATCH",
+                    body: JSON.stringify(action.payload.body),
+                    headers: { "Content-type": "application/json" },
+                });
+                break;
+            case "delete":
+                fetch(`http://localhost:3004/tasks/${action.payload}`, {
+                    method: "DELETE",
+                }).then(get);
+                break;
         }
     }
 
@@ -50,7 +57,11 @@ function App() {
             />
 
             {!!tasks.length && (
-                <TasksWrapper tasks={tasks} setLastTaskID={setLastTaskID} />
+                <TasksWrapper
+                    tasks={tasks}
+                    setLastTaskID={setLastTaskID}
+                    updateTask={dispatch}
+                />
             )}
 
             {!tasks?.length && (
@@ -66,11 +77,3 @@ function App() {
 }
 
 export default App;
-
-// async function getTasks() {
-//     const res = await fetch("http://localhost:3004/tasks");
-//     const data = await res.json();
-
-//     setTasks(data);
-//     setLastTaskID(data.length ? data[data.length - 1].id : null);
-// }

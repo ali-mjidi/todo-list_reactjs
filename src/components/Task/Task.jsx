@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./style.css";
 
-function Task({ children: initialTask, done, taskID, updateLastTaskID }) {
+function Task({ children: initialTask, done, taskID, updateTask }) {
     const [isDone, setIsDone] = useState(done);
     const [isEditing, setIsEditing] = useState(false);
     const [task, setTask] = useState(initialTask);
@@ -14,12 +14,8 @@ function Task({ children: initialTask, done, taskID, updateLastTaskID }) {
 
     function toggleDone() {
         const newData = { isDone: !isDone };
-        fetch(`http://localhost:3004/tasks/${taskID}`, {
-            method: "PATCH",
-            body: JSON.stringify(newData),
-            headers: { "Content-type": "application/json" },
-        });
 
+        updateTask({ type: "update", payload: { id: taskID, body: newData } });
         setIsDone(wasDone => !wasDone);
     }
 
@@ -39,22 +35,15 @@ function Task({ children: initialTask, done, taskID, updateLastTaskID }) {
 
     function editTaskSubmit(e) {
         const newData = { title: task.trim() };
-        fetch(`http://localhost:3004/tasks/${taskID}`, {
-            method: "PATCH",
-            body: JSON.stringify(newData),
-            headers: { "Content-type": "application/json" },
-        });
 
+        updateTask({ type: "update", payload: { id: taskID, body: newData } });
         toggleEditing();
         setTask(task => task.trim());
         e.preventDefault();
     }
 
-    async function deleteTask() {
-        await fetch("http://localhost:3004/tasks/" + taskID, {
-            method: "DELETE",
-        });
-        await updateLastTaskID();
+    function deleteTask() {
+        updateTask({ type: "delete", payload: taskID });
     }
 
     return (
@@ -85,11 +74,9 @@ function Task({ children: initialTask, done, taskID, updateLastTaskID }) {
                     </li>
                 </ul>
             </i>
-
             <div
                 className={`overlay ${showMoreOptions ? "show" : ""}`}
                 onClick={toggleMoreOptions}></div>
-
             <input
                 type="text"
                 className={`task__title ${isDone ? "task__title--done" : ""}`}

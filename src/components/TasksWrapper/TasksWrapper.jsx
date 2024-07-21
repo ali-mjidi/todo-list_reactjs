@@ -1,7 +1,7 @@
 import Task from "../Task/Task";
 import "./style.css";
 
-function TasksWrapper({ tasks, setLastTaskID }) {
+function TasksWrapper({ tasks, updateTask }) {
     const updateLastTaskID = () => {
         fetch("http://localhost:3004/tasks")
             .then(res => res.json())
@@ -11,7 +11,11 @@ function TasksWrapper({ tasks, setLastTaskID }) {
         <div className="tasksWrapper">
             {tasks.map(({ id, title, isDone }) => {
                 return (
-                    <Task key={id} taskID={id} done={isDone} updateLastTaskID={updateLastTaskID}>
+                    <Task
+                        key={id}
+                        taskID={id}
+                        done={isDone}
+                        updateTask={updateTask}>
                         {title}
                     </Task>
                 );
